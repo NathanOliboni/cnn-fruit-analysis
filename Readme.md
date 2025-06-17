@@ -107,3 +107,9 @@ Certifique-se de ter o Python instalado e, em seguida, instale as dependências:
 
 ```bash
 pip install flask flask-cors tensorflow numpy opencv-python
+```
+
+---
+
+### Dúvidas?
+**``` Consultar o manual e relatório disponibilizados no repositório ```**
