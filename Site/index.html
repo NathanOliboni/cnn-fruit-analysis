@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Imagem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .image-preview {
+            display: inline-block;
+            max-width: 100px;
+            margin: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload de Imagens</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="imageInput" name="image" accept="image/*" multiple required>
+        <button type="submit">Enviar</button>
+    </form>
+    
+    <div id="previewContainer"></div>
+
+    <script>
+        document.getElementById("uploadForm").onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById("imageInput");
+            const previewContainer = document.getElementById("previewContainer");
+            previewContainer.innerHTML = ""; // Limpa prévias anteriores
+
+            // Exibe uma prévia de cada imagem
+            for (const file of fileInput.files) {
+                formData.append("image", file);
+
+                const imgPreview = document.createElement("img");
+                imgPreview.src = URL.createObjectURL(file);
+                imgPreview.classList.add("image-preview");
+                previewContainer.appendChild(imgPreview);
+            }
+
+            // Envia as imagens para o backend
+            try {
+                const response = await fetch("http://localhost:5000/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const results = await response.json();
+        
+                // Exibe a resposta de cada imagem
+                results.forEach((result, index) => {
+                    const resultMessage = document.createElement("p");
+                    resultMessage.textContent = `Imagem ${index + 1}: ${result.message}`;
+                    previewContainer.appendChild(resultMessage);
+
+                    if (result.image_url) {
+                        const resultImg = document.createElement("img");
+                        resultImg.src = result.image_url;
+                        resultImg.classList.add("image-preview");
+                        previewContainer.appendChild(resultImg);
+                    }
+                });
+            } catch (error) {
+                console.error("Erro ao enviar imagens:", error);
+                const errorMsg = document.createElement("p");
+                errorMsg.textContent = "Erro ao enviar imagens.";
+                previewContainer.appendChild(errorMsg);
+            }
+        };
+    </script>
+</body>
+</html>
